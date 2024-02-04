@@ -1,0 +1,268 @@
+@startuml
+hide circle
+top to bottom direction
+
+!define ENTITY(entityName) class entityName << Entity >>
+!define AGGREGATE(aggregateName) class aggregateName << Aggregate >>
+!define AGGREGATE_ROOT(aggregateRootName) class aggregateRootName << Aggregate Root >>
+!define AGGREGATE_ROOT_ENTITY(aggregateRootEntityName) class aggregateRootEntityName << Aggregate Root >> << Entity >>
+!define VALUE_OBJECT(valueObjectName) class valueObjectName << Value Object >>
+!pragma useVerticalIf on
+skinparam dpi 350
+skinparam packageStyle rectangle
+skinparam rectangle {
+    BackgroundColor #f7f4eb
+    BorderColor Black
+}
+
+rectangle "Car Dealership" as BoundedContextCarDealership #line.dashed {
+
+Package "Human Resources Sub-Domain" <<Rectangle>> #DFBDF4 {
+
+        AGGREGATE_ROOT_ENTITY(Employee) #lightBlue {
+                    name: String
+                    seniority: Seniority
+                    email: String
+                    phoneNumber: String
+                    status: enum
+        }
+        VALUE_OBJECT(EmployeeIdentifier) #Bisque {
+            employeeId: UUID
+        }
+        VALUE_OBJECT(Address) #Bisque {
+            street: String
+            city: String
+            province: String
+            postalCode: String
+            country: String
+        }
+        ENTITY(Performance) #Bisque {
+            review: String
+            feedback: String
+            warnings: int
+            misconducts: int
+        }
+        VALUE_OBJECT(PerformanceIdentifier) #Bisque {
+            performanceId: UUID
+        }
+        AGGREGATE_ROOT_ENTITY(Department) #lightBlue {
+                    departmentName: String
+                    headcount: int
+                    building: enum
+                    phoneNumber: String
+                    status: Status
+        }
+        VALUE_OBJECT(DepartmentIdentifier) #Bisque {
+                    departmentCode: int
+        }
+        ENTITY(Position) #Bisque {
+            name: String
+            baseSalary: int
+        }
+        VALUE_OBJECT(PositionIdentifier) #Bisque {
+                    positionCode: UUID
+        }
+        ENTITY(Recruitment) #Bisque {
+            training: String
+            hiring: String
+            candidate: int
+        }
+    }
+
+ Package "Sales Subdomain" <<Rectangle>> {
+
+    AGGREGATE_ROOT_ENTITY(Sale) #LightBlue {
+    date: String
+    Status: String
+    description: String
+    name: String
+    Date: DateTime
+    Commission: Commission
+    }
+
+    VALUE_OBJECT(SaleIdentifier) #Bisque{
+        saleId: UUID
+    }
+
+    VALUE_OBJECT(Price) #Bisque{
+    SalesPrice: Double
+    Tax: Double
+    Total: Double
+    }
+
+    VALUE_OBJECT(Commission) #Bisque{
+    SalesPrice: Double
+    TotalCommission: Double
+    }
+
+    VALUE_OBJECT(EmployeeIdentifier) #Bisque{
+    EmployeeId: UUID
+    }
+}
+
+ package "sales and Marketing Sub-domain" <<Rectangle>> #f7f4eb {
+        AGGREGATE_ROOT(CustomerRelation) #lightBlue{
+            customer: Customer
+            employeeName: String
+            product: Product
+            contactingCustomers: ContactingCustomers
+        }
+
+        ENTITY(Customer) #b3d9ff {
+            fullName: String
+            phoneNumber: Int
+            email: String
+            warrantyId: Int
+            vehicles: [Vehicle]
+        }
+
+
+        ENTITY(SalesPerson) #lightCyan{
+            customers : List<Customer>
+            employerId: Int
+            products: List<products>
+        }
+
+        AGGREGATE_ROOT(Warranty) #lightBlue{
+            product: Product
+            customer: Customer
+        }
+    }
+
+
+ Package "Inventory Management Sub-Domain" <<Rectangle>> #DF8DF7 {
+            ENTITY(Vehicle) #lightblue {
+                make: String
+                model: String
+                mileage: String
+                year: String
+            }
+
+            VALUE_OBJECT(InventoryIdentifier) #Bisque {
+                inventoryId: InventoryIdentifier
+            }
+
+            VALUE_OBJECT(Trim) #Bisque {
+                                    colour: String
+                                    nbSeats: String
+                                    interior: String
+                                    engine: String
+                                    transmission: String
+                                    fuelType: String
+            }
+
+            VALUE_OBJECT(VehicleIdentifier) #Bisque{
+                vin: String
+            }
+
+            VALUE_OBJECT(MSRP) #Bisque{
+                value: Double
+                currency: String
+            }
+
+            AGGREGATE(Inventory){
+                vehicle: Vehicle
+                description: String
+            }
+ }
+
+ Package "Warranty & repairs" <<Rectangle>> #DFBDF4 {
+
+         ENTITY(Garage) #lightBlue {
+             address: String
+             size: String
+             id: UUID
+             specialization: String
+         }
+
+         ENTITY(Mechanics) #lightBlue {
+             mechanicsId: UUID
+             contactInfo: ContactInfo
+             garageId: Garage
+         }
+
+         AGGREGATE_ROOT_ENTITY(Customer) #lightBlue {
+             vin: String
+             id: UUID
+             requestId: Requests
+             warrantyId: Warranty
+             info: String
+         }
+
+         VALUE_OBJECT(ContactInfo) #Bisque {
+             name: String
+             phoneNumber: String
+             company: String
+             education: String
+             experience: String
+         }
+
+         VALUE_OBJECT(Parts) #Bisque {
+             id: UUID
+             quantity: int
+             manufacturer: String
+             Type: String
+             Date: Date
+             garageId: Garage
+         }
+
+         VALUE_OBJECT(Requests) #Bisque {
+             id: UUID
+             date: Date
+             Type: String
+             info: String
+             price: Double
+         }
+
+         VALUE_OBJECT(Warranty) #Bisque {
+             id: UUID
+             status: String
+             expiration: Date
+             vin: String
+         }
+
+
+
+        Employee --> EmployeeIdentifier
+        Employee "1" o-- "0..*" Address
+        Performance --> EmployeeIdentifier
+        Performance --> PerformanceIdentifier
+        Department --> DepartmentIdentifier
+        Department "1" o-- "0..*" Position
+        Position --> PositionIdentifier
+
+    Customer --> CustomerIdentifier
+    Sale --> CustomerIdentifier
+    Sale --> EmployeeIdentifier
+    Sale --> SaleIdentifier
+    Sale --> Price
+    Sale --> Commission
+    Sale "1" o-- "0..*" Address
+
+        CustomerRelation "1" --> "0..*" Customer
+        CustomerRelation --> Product
+        Customer --> CustomerIdentifier
+        Customer --o Warranty
+        Warranty o-- Product
+        Customer "0" o-- "0..*" Vehicle
+        SalesPerson "1" --* "0..*" Customer
+        SalesPerson "1" --* "0..*" Product
+
+        Vehicle "1" o-- "1" Trim
+        Vehicle --> VehicleIdentifier
+        Vehicle "1" o-- "1" MSRP
+        Inventory "0..*" *-- "0..*" Vehicle
+        Inventory --> InventoryIdentifier
+
+
+
+         Garage "1" o-- "0..*" Mechanics
+         Garage "1" o-- "0..*" Parts
+                Requests --> Parts
+                Mechanics --> ContactInfo
+                Requests --> Mechanics
+                Customer --> Warranty
+                Customer "1" o-- "0..*" Requests
+}
+
+@enduml

@@ -1,0 +1,48 @@
+# para setear las cosas de la DB, etc
+server:
+  error:
+    include-message: always
+
+logging:
+  level:
+    root: INFO
+    com.example: DEBUG #matchea donde esta el  proyecto o lo que sea
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+---
+# recommend setting this to "none" in a production environment
+#spring.jpa.hibernate.ddl-auto: none
+
+#esto es un perfil
+#for h2
+spring:
+  config:
+    activate:
+      on-profile: h2
+
+  h2:
+    console:
+      enabled: true
+
+  datasource:
+    url: jdbc:h2:mem:contacts;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none #para decir si nosotros queremos el schema o no
+
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+    defer-datasource-initialization: true #usa la informacion en el sql
+
+  sql:
+    init:
+      platform: h2
+      mode: always

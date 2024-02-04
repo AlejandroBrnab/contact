@@ -1,0 +1,43 @@
+@startuml
+hide circle
+top to bottom direction
+
+!define ENTITY(entityName) class entityName << Entity >>
+!define AGGREGATE_ROOT(aggregateRootName) class aggregateRootName << Aggregate Root >>
+!define AGGREGATE_ROOT_ENTITY(aggregateRootEntityName) class aggregateRootEntityName << Aggregate Root >> << Entity >>
+!define VALUE_OBJECT(valueObjectName) class valueObjectName << Value Object >>
+!pragma useVerticalIf on
+skinparam dpi 350
+skinparam packageStyle rectangle
+skinparam rectangle {
+    BackgroundColor #f7f4eb
+    BorderColor Black
+}
+
+rectangle "Bounded Context" as BoundedContextCardealershipSales #line.dashed {
+ Package "Sales and Marketing Sub-Domain" <<Rectangle>> #DF8DF7 {
+
+        AGGREGATE_ROOT_ENTITY(Sales) #lightblue {
+            salesPersonId: SalesPersonIdentifier
+            recieptId: RecieptIdentifier
+            date: Date
+            status: String
+        }
+
+        VALUE_OBJECT(RecieptIdentifier) #Bisque {
+                    recieptId: UUID
+                }
+
+                VALUE_OBJECT(Address) #Bisque {
+                    street: String
+                    province: String
+                    city: String
+                    country: String
+                }
+
+            Sales ---> RecieptIdentifier
+            Sales "1" o-- "0..*" Address
+
+        }
+}
+@enduml
